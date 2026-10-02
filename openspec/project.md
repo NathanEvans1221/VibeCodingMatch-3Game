@@ -1,11 +1,11 @@
 # Project Context
 
 ## Purpose
-提供「Vibe Coding Match-3」遊戲相關的靜態宣傳與說明資源，聚焦於呈現核心玩法、世界觀、商業模式與開發節點，協助利害關係人快速理解產品定位。
+提供「Vibe Coding Match-3」遊戲相關的靜態宣傳與說明資源，聚焦於呈現核心玩法、世界觀、商業模式與開發節點，協助利害關係人快速理解產品定位。首頁同時提供以原生 JavaScript 製作的 6×6、60 秒節奏三消 DEMO。
 
 ## Tech Stack
 - 靜態 HTML5 / CSS3 (無前端框架預設)
-- 可選用原生 JavaScript 進行互動強化
+- 原生 JavaScript：首頁內嵌三消核心與遊戲介面，不依賴建置工具或後端
 - 向量圖與影像資產採用開源或內製設計
 
 ## Project Conventions
@@ -24,6 +24,7 @@
 - 主要採人工檢視：確認在桌機與行動裝置 (≥360px 寬) 上的排版與色彩對比
 - 重要互動元件 (如 CTA 錨點) 需測試滾動定位與焦點樣式
 - 使用瀏覽器內建無障礙檢測工具檢查對比度與結構 (Heading 層級、替代文字)
+- 執行 `node --test tests/match3.test.cjs` 驗證三消規則；執行 `node tests/browser-smoke.cjs` 驗證瀏覽器操作、60 秒倒數與桌機／手機排版（需 Node.js 22+ 與 Chromium）
 
 ### Git Workflow
 - 以 `main` 作為發佈分支；新功能或調整建議建立功能分支 `feature/<description>`
