@@ -64,13 +64,53 @@ const deadline = setTimeout(() => { console.error('瀏覽器驗證超過90秒');
   const { targetId } = await send('Target.createTarget', { url: 'about:blank' }, null);
   session = (await send('Target.attachToTarget', { targetId, flatten: true }, null)).sessionId;
   await send('Runtime.enable'); await send('Page.enable');
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: `
+    window.__gameAudioContexts = [];
+    const NativeAudioContext = window.AudioContext;
+    window.AudioContext = class extends NativeAudioContext {
+      constructor(...args) { super(...args); window.__gameAudioContexts.push(this); }
+    };
+  ` });
   await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 1100, deviceScaleFactor: 1, mobile: false });
   await send('Page.navigate', { url: pathToFileURL(path.resolve(__dirname, '../index.html')).href });
   await until("document.querySelectorAll('.gem').length === 36");
+  // 真正渲染音訊，避免只驗證按鈕文字或模擬振盪器。
+  const audioChecks = await evaluate(`(async () => {
+    async function render(mode) {
+      const context = new OfflineAudioContext(1, 44100, 44100);
+      const soundtrack = Match3Audio(context);
+      if (mode === 'muted') soundtrack.setVolume(0);
+      if (mode === 'disabled') {
+        soundtrack.setEnabled('music', false); soundtrack.setEnabled('effects', false);
+      }
+      if (mode === 'music' || mode === 'muted' || mode === 'disabled') soundtrack.musicStep(0);
+      else if (mode === 'stopped') { soundtrack.musicStep(0); soundtrack.stop(); }
+      else soundtrack.effect(mode, 2, true);
+      const buffer = await context.startRendering();
+      const samples = buffer.getChannelData(0);
+      return { peak: Math.max(...samples.map(Math.abs)), finite: samples.every(Number.isFinite) };
+    }
+    const result = {};
+    for (const mode of ['music', 'start', 'select', 'invalid', 'match', 'end', 'muted', 'disabled', 'stopped']) result[mode] = await render(mode);
+    return result;
+  })()`);
+  for (const mode of ['music', 'start', 'select', 'invalid', 'match', 'end']) {
+    assert.ok(audioChecks[mode].peak > 0.001 && audioChecks[mode].peak <= 1 && audioChecks[mode].finite, mode);
+  }
+  for (const mode of ['muted', 'disabled', 'stopped']) assert.equal(audioChecks[mode].peak, 0, mode);
+  console.log('PASS 實際音訊渲染：背景音樂、五種音效、靜音、停用與停止');
+  assert.equal(await evaluate('window.__gameAudioContexts.length'), 0, '開頁時不應自動播放');
+  await evaluate('window.scrollTo(0, 0)');
+  const heroScreenshot = await send('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(path.join(os.tmpdir(), 'match3-hero-1280.png'), Buffer.from(heroScreenshot.data, 'base64'));
   await evaluate("document.getElementById('demo').scrollIntoView()");
   let current = await evaluate(state);
   assert.equal(current.disabled, true); assert.equal(current.cover, true);
-  await evaluate("document.getElementById('cover-start').click()");
+  const startPosition = await evaluate("(() => { const r = document.getElementById('cover-start').getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()");
+  await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...startPosition, button: 'left', clickCount: 1 });
+  await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...startPosition, button: 'left', clickCount: 1 });
+  await until("window.__gameAudioContexts[0]?.state === 'running'");
+  console.log('PASS 首次實際點擊開始啟用聲音，開頁不自動播放');
   current = await evaluate(state);
   assert.equal(current.cover, false); assert.equal(current.time, '60'); assert.equal(current.score, '0');
   assert.equal(current.disabled, false);
@@ -121,6 +161,12 @@ const deadline = setTimeout(() => { console.error('瀏覽器驗證超過90秒');
   console.log('PASS 連鎖動畫中重新開始，舊局不會修改新局');
   for (const width of [1280, 390, 360]) {
     await send('Emulation.setDeviceMetricsOverride', { width, height: width > 720 ? 1100 : 844, deviceScaleFactor: 1, mobile: width <= 720 });
+    if (width === 360) {
+      await evaluate('window.scrollTo(0, 0)');
+      const { data } = await send('Page.captureScreenshot', { format: 'png' });
+      fs.writeFileSync(path.join(os.tmpdir(), 'match3-hero-360.png'), Buffer.from(data, 'base64'));
+      assert.equal(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'), true, '手機首頁溢出');
+    }
     await evaluate("document.getElementById('demo').scrollIntoView()");
     assert.equal(await evaluate('document.documentElement.scrollWidth <= window.innerWidth'), true, `${width}px 頁面溢出`);
     assert.equal(await evaluate("document.getElementById('game-board').getBoundingClientRect().right <= window.innerWidth"), true);
@@ -138,12 +184,18 @@ const deadline = setTimeout(() => { console.error('瀏覽器驗證超過90秒');
   }
   await until("Number(document.getElementById('game-score').textContent.replaceAll(',', '')) > 0");
   console.log('PASS 手機觸控交换與計分');
-  await evaluate("document.getElementById('game-sound').click()");
-  await until("document.getElementById('game-sound').getAttribute('aria-pressed') === 'true'");
+  for (const control of ['game-sound', 'game-music']) {
+    assert.equal(await evaluate(`document.getElementById('${control}').getAttribute('aria-pressed')`), 'true');
+    await evaluate(`document.getElementById('${control}').click()`);
+    assert.equal(await evaluate(`document.getElementById('${control}').getAttribute('aria-pressed')`), 'false');
+    await evaluate(`document.getElementById('${control}').click()`);
+    await until(`document.getElementById('${control}').getAttribute('aria-pressed') === 'true'`);
+  }
   await wait(700);
-  await evaluate("document.getElementById('game-sound').click()");
-  assert.equal(await evaluate("document.getElementById('game-sound').getAttribute('aria-pressed')"), 'false');
-  console.log('PASS 合成節拍音效開關');
+  await evaluate("document.getElementById('game-volume').value = '0'; document.getElementById('game-volume').dispatchEvent(new Event('input'))");
+  assert.equal(await evaluate("document.getElementById('volume-value').textContent"), '0%');
+  await evaluate("document.getElementById('game-volume').value = '40'; document.getElementById('game-volume').dispatchEvent(new Event('input'))");
+  console.log('PASS 背景音樂與音效獨立開關、音量調整');
   await evaluate("document.getElementById('game-start').click()");
   console.log('驗證真實60秒倒數與到期鎖定…');
   await wait(30000);

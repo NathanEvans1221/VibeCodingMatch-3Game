@@ -241,17 +241,22 @@
         padding: 80px 18px 64px;
       }
     }
-    a:focus-visible, button:focus-visible {
+    a:focus-visible, button:focus-visible, input:focus-visible {
       outline: 3px solid #fff;
       outline-offset: 4px;
     }
 
     .demo-heading { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
     .demo-heading h2 { margin: 0; }
-    .demo-badge { color: #8de9d9; border: 1px solid #376c66; border-radius: 999px; padding: 4px 12px; font-size: 0.8rem; }
+    .demo-badge { color: #071525; background: #78e8d0; border-radius: 999px; padding: 6px 14px; font-size: 0.85rem; font-weight: 700; }
+    .demo-announcement { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 10px; margin-bottom: 22px; padding: 10px 18px; border: 1px solid #74e9ce; border-radius: 999px; background: #122f35; color: #b8ffee; font-weight: 700; text-decoration: none; }
+    .demo-announcement::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #74e9ce; box-shadow: 0 0 12px #74e9ce; flex-shrink: 0; }
+    .cta-play { font-weight: 800; animation: demo-glow 2.5s ease-in-out infinite; }
+    @keyframes demo-glow { 50% { box-shadow: 0 0 36px rgba(73, 193, 255, 0.65); } }
+    #demo { scroll-margin-top: 24px; border-color: #478fab; background: linear-gradient(135deg, rgba(22, 40, 68, 0.95), rgba(17, 18, 40, 0.95)); box-shadow: 0 0 38px rgba(73, 193, 255, 0.1); }
     .demo-intro { margin-top: 14px; }
     .game-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; align-items: start; }
-    .board-wrap { position: relative; max-width: 460px; width: 100%; margin: auto; }
+    .board-wrap { position: relative; max-width: 460px; width: 100%; margin: 0 auto; }
     .game-board { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; padding: 12px; border: 1px solid #344b70; border-radius: 18px; background: #070d1b; }
     .gem { aspect-ratio: 1; border: 1px solid #33435d; border-radius: 12px; background: #121e34; font-family: inherit; font-size: clamp(1.3rem, 4vw, 2.3rem); cursor: pointer; touch-action: manipulation; transition: transform 160ms, background 160ms, opacity 160ms; }
     .gem[data-kind="0"] { color: #6bd5ff; }
@@ -279,6 +284,12 @@
     .beat-track { height: 6px; background: #26334d; border-radius: 4px; margin-top: 12px; overflow: hidden; }
     .beat-progress { width: 100%; height: 100%; background: linear-gradient(90deg, #49c1ff, #a855f7); transform-origin: left; transform: scaleX(0); }
     .game-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    .audio-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px; margin-bottom: 16px; background: #080f20; border-radius: 12px; }
+    .audio-controls .game-button[aria-pressed="true"] { color: #b8ffee; border-color: #4d9c8d; }
+    .volume-control { display: flex; align-items: center; gap: 10px; width: 100%; color: #c4d0e9; font-size: 0.85rem; }
+    .volume-control input { flex: 1; min-width: 0; accent-color: #73e6d1; min-height: 28px; }
+    .volume-control output { min-width: 3em; text-align: right; }
+    .audio-note { font-size: 0.8rem; color: #b9c7e7; margin-bottom: 16px; }
     .game-button { border: 1px solid #596d94; background: #17233c; color: #f4f6ff; border-radius: 10px; padding: 11px 16px; font: inherit; font-size: 0.9rem; cursor: pointer; min-height: 44px; }
     .game-button.primary { background: #71d1ff; color: #061222; border-color: #71d1ff; font-weight: 700; }
     .game-button:hover { filter: brightness(1.15); }
@@ -294,17 +305,18 @@
       .gem { border-radius: 8px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      header::before { animation: none; }
+      header::before, .cta-play { animation: none; }
       .gem, .feature-card, .cta-group a { transition: none; }
     }
   </style>
 </head>
 <body>
   <header>
+    <a class="demo-announcement" href="#demo">可玩 DEMO 已上線 · 馬上挑戰 60 秒</a>
     <h1>Vibe Coding Match-3</h1>
     <p>以節奏感、流暢動畫與創新社交競技為核心的三消遊戲。融合 AI 對手、音樂同步特效與可拓展關卡工具，為玩家與創作者帶來全新的「節奏解謎」體驗。</p>
     <div class="cta-group">
-      <a class="cta-primary" href="#demo">立即試玩 DEMO</a>
+      <a class="cta-primary cta-play" href="#demo">▶ 立即試玩 DEMO</a>
       <a class="cta-secondary" href="#core">探索核心玩法</a>
     </div>
   </header>
@@ -314,8 +326,8 @@
 
     <section id="demo" aria-labelledby="demo-title">
       <div class="demo-heading">
-        <h2 id="demo-title">跟上節拍，消出你的節奏</h2>
-        <span class="demo-badge">可玩 DEMO · 60 秒挑戰</span>
+        <h2 id="demo-title">試玩 DEMO：跟上節拍，消出你的節奏</h2>
+        <span class="demo-badge">立即可玩 · 音樂 × 三消</span>
       </div>
       <p class="demo-intro">交換相鄰的音波方塊，連成三顆同色。抓住綠燈節拍，讓每次消除獲得雙倍分數。</p>
       <div class="game-layout">
@@ -323,7 +335,7 @@
           <div id="game-board" class="game-board" role="group" aria-label="6乘6三消棋盤" aria-describedby="game-instructions"></div>
           <div id="board-cover" class="board-cover">
             <strong id="cover-title">準備好接住節拍？</strong>
-            <p id="cover-text">一局 60 秒，看看你能消出多少分。</p>
+            <p id="cover-text">一局 60 秒，按下開始，跟著音樂消出高分！</p>
             <button id="cover-start" class="game-button primary" type="button">開始挑戰</button>
           </div>
         </div>
@@ -340,8 +352,17 @@
           <div class="game-actions">
             <button id="game-start" class="game-button primary" type="button">開始挑戰</button>
             <button id="game-hint" class="game-button" type="button" disabled>提示一步</button>
-            <button id="game-sound" class="game-button" type="button" aria-pressed="false">節拍聲：關</button>
           </div>
+          <div class="audio-controls" role="group" aria-label="聲音設定">
+            <button id="game-music" class="game-button" type="button" aria-pressed="true">♫ 音樂：開</button>
+            <button id="game-sound" class="game-button" type="button" aria-pressed="true">♪ 音效：開</button>
+            <div class="volume-control">
+              <label for="game-volume">音量</label>
+              <input id="game-volume" type="range" min="0" max="100" value="40" aria-describedby="audio-note">
+              <output id="volume-value" for="game-volume">40%</output>
+            </div>
+          </div>
+          <p id="audio-note" class="audio-note">按「開始挑戰」後播放音樂與音效；可隨時關閉或調整音量。</p>
           <p id="game-status" class="game-status" role="status" aria-live="polite">按下「開始挑戰」，選一顆方塊，再選它旁邊的一顆。</p>
           <ul id="game-instructions" class="game-help">
             <li>橫向或直向連成 3 顆以上同色方塊即可消除；沒有消除的交換會復原。</li>
@@ -519,6 +540,68 @@
       return { matches, adjacent, swap, move, fresh, collapse, onBeat, points };
     })();
   </script>
+  <script id="match3-audio">
+    function Match3Audio(context) {
+      const master = context.createGain();
+      master.gain.value = 0.4; master.connect(context.destination);
+      const channels = { music: context.createGain(), effects: context.createGain() };
+      Object.values(channels).forEach(channel => channel.connect(master));
+      const enabled = { music: true, effects: true }, voices = new Set();
+      const frequency = note => 440 * 2 ** ((note - 69) / 12);
+      function tone(hz, duration, level, type, delay = 0, group = 'effects', endHz = hz) {
+        if (!enabled[group] || master.gain.value === 0) return;
+        const oscillator = context.createOscillator(), gain = context.createGain();
+        const time = context.currentTime + delay;
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(hz, time);
+        oscillator.frequency.exponentialRampToValueAtTime(endHz, time + duration);
+        gain.gain.setValueAtTime(0, time);
+        gain.gain.linearRampToValueAtTime(level, time + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+        oscillator.connect(gain); gain.connect(channels[group]);
+        const voice = { oscillator, gain, group }; voices.add(voice);
+        oscillator.onended = () => { voices.delete(voice); oscillator.disconnect(); gain.disconnect(); };
+        oscillator.start(time); oscillator.stop(time + duration + 0.01);
+      }
+      function stop(group) {
+        for (const voice of voices) {
+          if (!group || voice.group === group) {
+            voice.gain.disconnect(); voice.oscillator.stop(); voices.delete(voice);
+          }
+        }
+      }
+      function musicStep(step) {
+        if (!enabled.music) return;
+        const root = [45, 41, 48, 43][Math.floor(step / 16) % 4];
+        const note = root + 24 + [0, 7, 12, 7, 3, 7, 12, 10][step % 8];
+        tone(frequency(note), 0.22, 0.1, 'triangle', 0, 'music');
+        if (step % 2 === 0) {
+          tone(frequency(root), 0.28, 0.17, 'sine', 0, 'music');
+          tone(130, 0.13, 0.28, 'sine', 0, 'music', 42);
+        } else {
+          tone(1800, 0.035, 0.018, 'square', 0, 'music', 800);
+        }
+        if (step % 8 === 0) {
+          for (const interval of [0, 3, 7]) tone(frequency(root + 12 + interval), 1.1, 0.035, 'triangle', 0, 'music');
+        }
+      }
+      function effect(kind, chain = 1, beat = false) {
+        if (kind === 'select') { tone(620, 0.055, 0.12, 'sine'); return; }
+        if (kind === 'invalid') { tone(220, 0.16, 0.1, 'triangle', 0, 'effects', 110); return; }
+        const notes = kind === 'start' ? [69, 72, 76, 81] : kind === 'end' ? [81, 76, 72, 69] :
+          [72 + Math.min(chain - 1, 5) * 2, 76 + Math.min(chain - 1, 5) * 2, beat ? 84 : 79];
+        notes.forEach((note, i) => tone(frequency(note), 0.2, 0.14, 'sine', i * 0.065));
+      }
+      return {
+        musicStep, effect, stop,
+        setEnabled(group, value) {
+          enabled[group] = value; channels[group].gain.value = value ? 1 : 0;
+          if (!value) stop(group);
+        },
+        setVolume(value) { master.gain.value = Math.max(0, Math.min(1, value)); },
+      };
+    }
+  </script>
   <script id="match3-ui">
     (() => {
       const get = id => document.getElementById(id);
@@ -541,9 +624,28 @@
       });
       let board = Match3.fresh(), score = 0, bestChain = 0, selected = null;
       let active = false, busy = false, session = 0, started = 0, frame = 0;
-      let hinted = [], sound = false, audio = null, lastBeat = -1;
+      let hinted = [], sound = true, music = true, audio = null, soundtrack = null, lastStep = -1;
       const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
       const status = message => { get('game-status').textContent = message; };
+      async function enableAudio() {
+        try {
+          if (!audio) {
+            const Audio = window.AudioContext || window.webkitAudioContext;
+            if (!Audio) throw new Error('AudioContext unavailable');
+            audio = new Audio(); soundtrack = Match3Audio(audio);
+          }
+          soundtrack.setEnabled('effects', sound); soundtrack.setEnabled('music', music);
+          soundtrack.setVolume(Number(get('game-volume').value) / 100);
+          await audio.resume();
+          return true;
+        } catch {
+          get('audio-note').textContent = '聲音無法啟動，仍可依綠燈遊玩；可再按聲音開關重試。';
+          return false;
+        }
+      }
+      const playEffect = (kind, chain, beat) => {
+        if (sound && audio?.state === 'running' && !document.hidden) soundtrack.effect(kind, chain, beat);
+      };
       function render(cleared = new Set()) {
         cells.forEach((cell, i) => {
           cell.dataset.kind = board[i]; cell.textContent = symbols[board[i]];
@@ -562,6 +664,7 @@
       function end() {
         active = false; busy = false; selected = null; hinted = []; session++;
         cancelAnimationFrame(frame);
+        soundtrack?.stop(); playEffect('end');
         get('game-time').textContent = '0';
         get('beat-panel').classList.remove('on-beat');
         get('beat-label').textContent = '挑戰結束 · 再來一局？';
@@ -581,28 +684,26 @@
       function tick() {
         if (!alive(session)) return;
         const elapsed = performance.now() - started;
-        const beat = Math.floor(elapsed / 600);
+        const step = Math.floor(elapsed / 300);
         get('game-time').textContent = Math.ceil((60000 - elapsed) / 1000);
         get('beat-panel').classList.toggle('on-beat', Match3.onBeat(elapsed));
         get('beat-label').textContent = Match3.onBeat(elapsed) ? '綠燈！有效交換分數 ×2' : '跟上節奏 · 等待下一次綠燈';
         get('beat-progress').style.transform = `scaleX(${elapsed % 600 / 600})`;
-        if (beat !== lastBeat) {
-          lastBeat = beat;
-          if (sound && audio?.state === 'running') {
-            const oscillator = audio.createOscillator(), gain = audio.createGain();
-            oscillator.frequency.value = beat % 4 === 0 ? 880 : 660;
-            gain.gain.setValueAtTime(0.07, audio.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.06);
-            oscillator.connect(gain); gain.connect(audio.destination);
-            oscillator.start(); oscillator.stop(audio.currentTime + 0.07);
-          }
+        if (step !== lastStep && audio?.state === 'running' && !document.hidden) {
+          lastStep = step;
+          if (music) soundtrack.musicStep(step);
         }
         frame = requestAnimationFrame(tick);
       }
       function start() {
         cancelAnimationFrame(frame); session++;
         board = Match3.fresh(); score = 0; bestChain = 0; selected = null; hinted = [];
-        busy = false; active = true; started = performance.now(); lastBeat = -1;
+        busy = false; active = true; started = performance.now(); lastStep = -1;
+        soundtrack?.stop();
+        const token = session;
+        if (sound || music) enableAudio().then(ready => {
+          if (ready && alive(token)) playEffect('start');
+        });
         get('board-cover').hidden = true;
         get('game-start').textContent = '重新開始';
         get('game-time').textContent = '60';
@@ -613,11 +714,12 @@
         if (!alive(session) || busy) return;
         hinted = [];
         if (selected === i) { selected = null; render(); return; }
-        if (selected === null || !Match3.adjacent(selected, i)) { selected = i; render(); return; }
+        if (selected === null || !Match3.adjacent(selected, i)) { selected = i; playEffect('select'); render(); return; }
         const token = session, first = selected;
         const beat = Match3.onBeat(performance.now() - started);
         selected = null;
         if (!Match3.swap(board, first, i)) {
+          playEffect('invalid');
           status('這一步沒有形成三消，交換已復原。試試其他相鄰方塊！'); render(); return;
         }
         busy = true; render();
@@ -628,6 +730,7 @@
           chain++;
           const added = Match3.points(cleared.size, chain, beat);
           score += added; bestChain = Math.max(bestChain, chain);
+          playEffect('match', chain, beat);
           status(`${beat ? '節奏命中 ×2！' : '成功消除！'} ${chain} 連鎖 · ${cleared.size} 顆 · +${added} 分`);
           render(cleared);
           await wait(200);
@@ -648,18 +751,27 @@
         selected = null; hinted = Match3.move(board) || [];
         status('金色外框的兩顆方塊可以交換，試著等綠燈亮起再出手！'); render();
       });
-      get('game-sound').addEventListener('click', async () => {
-        try {
-          if (!sound) {
-            const Audio = window.AudioContext || window.webkitAudioContext;
-            if (!Audio) throw new Error('AudioContext unavailable');
-            audio ||= new Audio(); await audio.resume();
-          }
-          sound = !sound;
-          get('game-sound').textContent = `節拍聲：${sound ? '開' : '關'}`;
-          get('game-sound').setAttribute('aria-pressed', String(sound));
-        } catch {
-          status('這個瀏覽器無法播放節拍聲，仍可依綠燈指示遊玩。');
+      for (const [id, group] of [['game-sound', 'effects'], ['game-music', 'music']]) {
+        get(id).addEventListener('click', () => {
+          if (group === 'effects') sound = !sound; else music = !music;
+          const enabled = group === 'effects' ? sound : music;
+          get(id).textContent = `${group === 'effects' ? '♪ 音效' : '♫ 音樂'}：${enabled ? '開' : '關'}`;
+          get(id).setAttribute('aria-pressed', String(enabled));
+          soundtrack?.setEnabled(group, enabled);
+          if (enabled && active) void enableAudio();
+        });
+      }
+      get('game-volume').addEventListener('input', event => {
+        get('volume-value').textContent = `${event.target.value}%`;
+        soundtrack?.setVolume(Number(event.target.value) / 100);
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          soundtrack?.stop();
+          if (audio) void audio.suspend().catch(() => {});
+        } else if (active) {
+          if (!alive(session)) return;
+          if (audio && (sound || music)) void enableAudio();
         }
       });
       render();
